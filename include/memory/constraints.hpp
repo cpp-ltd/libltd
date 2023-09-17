@@ -30,7 +30,6 @@ concept allocator_constructable = std::constructible_from<T, void *, const std::
 template <typename T>
 concept allocatable = requires(T t, const std::size_t size) {
 	{ t.allocate(size) } -> allocator_constructable;
-	{ t.deallocate(std::add_lvalue_reference(t.allocate(size))) } -> std::same_as<void>;
 };
 
 }
