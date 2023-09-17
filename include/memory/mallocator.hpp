@@ -1,6 +1,7 @@
 #ifndef LIBLTD_MEMORY_MALLOCATOR_HPP
 #define LIBLTD_MEMORY_MALLOCATOR_HPP
 
+#include <cstdlib>
 #include "constraints.hpp"
 #include "block.hpp"
 
@@ -15,10 +16,24 @@ template <allocator_constructable T = block>
 struct mallocator {
 
 	[[nodiscard]] T
-	allocate(const std::size_t size);
+	allocate(const std::size_t size)
+	{
+		if (! size)
+			return T(nullptr, 0UL);
+
+		void *ptr = std::malloc(size);
+		if (ptr == nullptr)
+			return T(nullptr, 0UL);
+
+		return T(ptr, size);
+	}
 
 	void
-	deallocate(T& block);
+	deallocate(T& block)
+	{
+		std::free(block.ptr);
+		block = T(nullptr, 0UL);
+	}
 
 };
 
