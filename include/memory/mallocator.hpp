@@ -1,35 +1,24 @@
 #ifndef LIBLTD_MEMORY_MALLOCATOR_HPP
 #define LIBLTD_MEMORY_MALLOCATOR_HPP
 
-#include <cstdlib>
-#include "allocator.hpp"
+#include "constraints.hpp"
+#include "block.hpp"
 
-namespace ltd {
+namespace ltd::memory {
 
 /**
- * \brief Represents memory allocator that employs `malloc` - `free`
+ * Represents memory allocator that employs `malloc` - `free`.
+ *
+ * \tparam T The memory block type used.
  */
+template <allocator_constructable T = block>
 struct mallocator {
 
-	[[nodiscard]] static block
-	allocate(const std::size_t size)
-	{
-		if (! size) /* Avoid IDB */
-			return null_block;
+	[[nodiscard]] T
+	allocate(const std::size_t size);
 
-		void *ptr = std::malloc(size);
-		if (ptr == nullptr)
-			return null_block;
-
-		return { ptr, size };
-	}
-
-	static void
-	deallocate(block &blk)
-	{
-		free(blk.ptr);
-		blk = null_block;
-	}
+	void
+	deallocate(T& block);
 
 };
 

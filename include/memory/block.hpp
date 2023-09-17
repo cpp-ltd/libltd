@@ -1,59 +1,53 @@
 #ifndef LIBLTD_MEMORY_BLOCK_HPP
 #define LIBLTD_MEMORY_BLOCK_HPP
 
-#include <concepts>
+#include <utility>
 #include <cstddef>
 
-namespace ltd {
+namespace ltd::memory {
 
 /**
- * \brief Represents dynamically allocated memory block.
+ * Represents a basic memory block.
+ *
+ * This type is the default allocator_constructable used by all allocatable types when no
+ * allocator_constructable is provided.
  */
 struct block {
 
-	/** Raw pointer to the allocated region */
+	/**
+	 * Raw pointer to allocated memory region.
+	 */
 	void *ptr;
 
-	/** The size of the allocated region */
+	/**
+	 * The size of the allocated memory region.
+	 */
 	std::size_t size;
 
 	/**
-	 * \brief Checks whether blocks contain the same region.
-	 * \param other The other block to compare.
-	 * \return true if both contain the same region, false otherwise.
+	 * Constructs a memory block with the given pointer and size.
+	 *
+	 * \param p A raw pointer to the allocated memory region.
+	 * \param s The size of the allocated memory region in bytes.
+	 */
+	block(void *p, const std::size_t s)
+		: ptr { p }
+		, size { s }
+	{}
+
+	/**
+	 * Compares two memory blocks for equality.
+	 *
+	 * \param rhs The memory block to compare with.
+	 * \return True if the memory blocks refer to the same memory region, false otherwise.
 	 */
 	inline bool
-	operator==(const block& other) const
+	operator==(const block &rhs) const
 	{
-		return ptr == other.ptr;
+		return (ptr == rhs.ptr) && (size == rhs.size);
 	}
 
 };
-
-/**
- * \brief Represents dynamically allocated memory block with reentrant
- * properties.
- * \todo Define the reentrant behavior and properties.
- */
-struct reentrant_block { /* TODO */ };
-
-/**
- * \brief Null or empty memory block.
- */
-constexpr block null_block = { nullptr, 0UL };
-
-/**
- * \brief The concept of memory blocks.
- * \todo Define actual constraints to satisfy this concept. Then, we would be
- * able to use this to customize memory block types with additional properties,
- * and it can be used like this:
- *
- * <template memory_block T = block>
- * struct mallocator;
- */
-template<typename T>
-concept memory_block = std::same_as<T, block>
-                    || std::same_as<T, reentrant_block>;
 
 }
 
